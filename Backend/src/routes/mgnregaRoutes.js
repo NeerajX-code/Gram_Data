@@ -2,8 +2,7 @@ import express from "express";
 
 const router = express.Router();
 
-import  { getDistrictData } from "../controllers/mgnregaController.js";
-
+import { getDistrictData } from "../controllers/mgnregaController.js";
 
 router.post("/", getDistrictData);
 

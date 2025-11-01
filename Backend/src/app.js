@@ -6,7 +6,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://gram-data-gt3m.onrender.com"],
+    origin: ["https://gram-data-gt3m.onrender.com","http://localhost:5173"],
   })
 );
 
