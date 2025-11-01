@@ -12,6 +12,10 @@ app.use(
 
 app.use(express.json());
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "Server is healthy ✅" });
+});
+
 app.use("/api/mgnrega", mgnregaRoutes);
 
 export default app;
