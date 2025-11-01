@@ -1,0 +1,28 @@
+export const translations = {
+  en: {
+    title: "District MGNREGA Performance",
+    totalExpenditure: "Total Expenditure (₹)",
+    householdsWorked: "Households Worked",
+    avgPayment: "Average Payment Within 15 Days (%)",
+    selectDistrict: "Select Your District",
+    viewReport: "View Report",
+    detectLocation: "Detect location",
+    fetchData: "Fetch Data",
+    clickMonth: "Click a month to view details for that month.",
+    locationReady: "Location ready",
+    detectingLocation: "Detecting location…",
+  },
+  hi: {
+    title: "जिले का मनरेगा प्रदर्शन",
+    totalExpenditure: "कुल व्यय (₹)",
+    householdsWorked: "काम करने वाले परिवार",
+    avgPayment: "15 दिनों में औसत भुगतान (%)",
+    selectDistrict: "अपना जिला चुनें",
+    viewReport: "रिपोर्ट देखें",
+    detectLocation: "स्थान खोजें",
+    fetchData: "डेटा लाएँ",
+    clickMonth: "किसी महीने पर क्लिक करके उस महीने का विवरण देखें।",
+    locationReady: "स्थिति तैयार है",
+    detectingLocation: "स्थान पता किया जा रहा है…",
+  },
+};
