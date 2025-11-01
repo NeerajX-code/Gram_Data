@@ -7,10 +7,21 @@ export const getDistrictData = async (req, res) => {
     const { district, stateName, fin_year } = req.body;
 
     if (!district || !stateName) {
-      return res.status(400).json({ message: "Choose your district and state" });
+      return res
+        .status(400)
+        .json({ message: "Choose your district and state" });
     }
 
-    const cacheKey = `${stateName}_${district}_${fin_year}`;
+    const sanitizePlace = (value = "") =>
+      String(value)
+        .replace(/\b(district|division|tehsil|taluk|taluka|block)\b/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const normalizedState = sanitizePlace(stateName);
+    const normalizedDistrict = sanitizePlace(district);
+
+    const cacheKey = `${normalizedState}_${normalizedDistrict}_${fin_year}`;
     const cached = await redis.get(cacheKey);
 
     // 🔹 Serve from cache if available
@@ -28,17 +39,27 @@ export const getDistrictData = async (req, res) => {
       "limit=1500",
     ];
 
-    params.push(`filters[state_name]=${encodeURIComponent(stateName.toUpperCase())}`);
-    if (fin_year) params.push(`filters[fin_year]=${encodeURIComponent(fin_year)}`);
-    if (district) params.push(`filters[district_name]=${encodeURIComponent(district.toUpperCase())}`);
+    params.push(
+      `filters[state_name]=${encodeURIComponent(normalizedState.toUpperCase())}`
+    );
+    if (fin_year)
+      params.push(`filters[fin_year]=${encodeURIComponent(fin_year)}`);
+    if (district)
+      params.push(
+        `filters[district_name]=${encodeURIComponent(
+          normalizedDistrict.toUpperCase()
+        )}`
+      );
 
-    const apiUrl = `https://api.data.gov.in/resource/ee03643a-ee4c-48c2-ac30-9f2ff26ab722?${params.join("&")}`;
+    const apiUrl = `https://api.data.gov.in/resource/ee03643a-ee4c-48c2-ac30-9f2ff26ab722?${params.join(
+      "&"
+    )}`;
 
     // 🔹 Fetch data with browser-like headers
     const apiRes = await axios.get(apiUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept": "application/json",
+        Accept: "application/json",
       },
     });
 
@@ -62,8 +83,9 @@ export const getDistrictData = async (req, res) => {
         summary[month] = {
           month,
           tot_exp: 0,
-          Approved_Labour_Budget:record.Approved_Labour_Budget || 0,
-          Average_Wage_rate_per_day_per_person:record.Average_Wage_rate_per_day_per_person || 0,
+          Approved_Labour_Budget: record.Approved_Labour_Budget || 0,
+          Average_Wage_rate_per_day_per_person:
+            record.Average_Wage_rate_per_day_per_person || 0,
           total_households_worked: 0,
           avg_payment_within_15_days: 0,
           count: 0,
@@ -71,8 +93,12 @@ export const getDistrictData = async (req, res) => {
       }
 
       summary[month].tot_exp += parseFloat(record.Total_Exp || 0);
-      summary[month].total_households_worked += parseInt(record.Total_Households_Worked || 0);
-      summary[month].avg_payment_within_15_days += parseFloat(record.percentage_payments_gererated_within_15_days || 0);
+      summary[month].total_households_worked += parseInt(
+        record.Total_Households_Worked || 0
+      );
+      summary[month].avg_payment_within_15_days += parseFloat(
+        record.percentage_payments_gererated_within_15_days || 0
+      );
       summary[month].count += 1;
     }
 
@@ -81,9 +107,12 @@ export const getDistrictData = async (req, res) => {
       month: m.month,
       tot_exp: m.tot_exp.toFixed(2),
       Approved_Labour_Budget: m.Approved_Labour_Budget,
-      Average_Wage_rate_per_day_per_person: m.Average_Wage_rate_per_day_per_person,
+      Average_Wage_rate_per_day_per_person:
+        m.Average_Wage_rate_per_day_per_person,
       total_households_worked: m.total_households_worked,
-      avg_payment_within_15_days: (m.avg_payment_within_15_days / m.count).toFixed(2),
+      avg_payment_within_15_days: (
+        m.avg_payment_within_15_days / m.count
+      ).toFixed(2),
     }));
 
     // 🔹 Cache the summarized data
@@ -91,8 +120,8 @@ export const getDistrictData = async (req, res) => {
 
     // 🔹 Optional: Store in DB (for offline use)
     await MngregaData.create({
-      state_name: stateName,
-      district_name: district,
+      state_name: normalizedState,
+      district_name: normalizedDistrict,
       fin_year,
       data: monthlyData,
     });
