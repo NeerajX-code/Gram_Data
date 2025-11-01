@@ -100,7 +100,7 @@ const Home = () => {
     setLoading(true);
     try {
       const payload = { district, stateName, fin_year: finYear};
-      const res = await axios.post("http://localhost:3000/api/mgnrega/", payload);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}`, payload);
       const records = res.data?.data || [];
 
   setRawRecords(records);
