@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { translations } from "../translations";
 
-const DEFAULT = "hi"; // default language Hindi
+const DEFAULT = "en";
 
 export function useLanguage() {
   const [lang, setLang] = useState(DEFAULT);
@@ -13,7 +13,7 @@ export function useLanguage() {
         const code = nav.startsWith('hi') ? 'hi' : 'en';
         setLang(code);
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, []);

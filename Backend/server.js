@@ -10,6 +10,11 @@ dotenv.config();
   await updateAllStateData();
 })();
 
+
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 connectDB();
 
 app.listen(3000, () => console.log("Server running on port 3000"));
