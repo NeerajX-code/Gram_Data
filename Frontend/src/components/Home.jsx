@@ -63,6 +63,12 @@ const normalizeMonthLabel = (raw) => {
   return label.charAt(0).toUpperCase() + label.slice(1);
 };
 
+const sanitizePlace = (value = "") =>
+  String(value)
+    .replace(/\b(district|division|tehsil|taluk|taluka|block)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
 const Home = () => {
   const { lang, t, toggle } = useLanguage();
   const [loadingLocation, setLoadingLocation] = useState(false);
@@ -97,11 +103,13 @@ const Home = () => {
             },
           });
           const json = await res.json();
-          const { state, state_district } = json.address;
-          if (state) setStateName(state);
-          console.log("Detected district:", state_district);
-          if (state_district)
-            setDistrict(state_district || json.address.city_district || "");
+          const { state, state_district, city_district, county } = json.address || {};
+          const normalizedState = sanitizePlace(state);
+          const fallbackDistrict = state_district || city_district || county;
+          const normalizedDistrict = sanitizePlace(fallbackDistrict);
+
+          if (normalizedState) setStateName(normalizedState);
+          if (normalizedDistrict) setDistrict(normalizedDistrict);
         } catch (err) {
           console.error(err);
           setError("Unable to reverse-geocode your location");
@@ -126,7 +134,20 @@ const Home = () => {
     }
     setLoading(true);
     try {
-      const payload = { district, stateName, fin_year: finYear };
+      const normalizedState = sanitizePlace(stateName);
+      const normalizedDistrict = sanitizePlace(district);
+
+      if (!normalizedDistrict || !normalizedState) {
+        setError("Please provide a valid district and state");
+        setLoading(false);
+        return;
+      }
+
+      // Keep inputs tidy if sanitation trimmed extra words
+      if (normalizedState !== stateName) setStateName(normalizedState);
+      if (normalizedDistrict !== district) setDistrict(normalizedDistrict);
+
+      const payload = { district: normalizedDistrict, stateName: normalizedState, fin_year: finYear };
       const res = await axios.post(`https://gram-data.onrender.com/api/mgnrega/`, payload);
       const records = res.data?.data || [];
 

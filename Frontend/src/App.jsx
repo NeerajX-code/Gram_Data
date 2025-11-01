@@ -5,7 +5,6 @@ import Home from "./components/Home";
 
 const App = () => {
   useEffect(() => {
-    liveServerCheck();
 
     async function liveServerCheck() {
       try {
@@ -15,6 +14,7 @@ const App = () => {
         console.error("Server is not reachable:", error);
       }
     }
+    liveServerCheck();
   }, []);
 
   return (
