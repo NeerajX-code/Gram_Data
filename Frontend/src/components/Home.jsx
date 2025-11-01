@@ -127,7 +127,7 @@ const Home = () => {
     setLoading(true);
     try {
       const payload = { district, stateName, fin_year: finYear };
-      const res = await axios.post(`${import.meta.env.API_URL}`, payload);
+      const res = await axios.post(`https://gram-data.onrender.com/api/mgnrega/`, payload);
       const records = res.data?.data || [];
 
       setRawRecords(records);
