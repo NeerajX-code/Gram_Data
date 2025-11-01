@@ -9,7 +9,7 @@ const App = () => {
 
     async function liveServerCheck() {
       try {
-        const response = await axios.get("/health");
+        const response = await axios.get("https://gram-data.onrender.com/health");
         console.log("Server is live:", response.data);
       } catch (error) {
         console.error("Server is not reachable:", error);
